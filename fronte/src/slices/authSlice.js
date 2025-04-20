@@ -20,26 +20,50 @@ if (userFromStorage && userFromStorage !== "undefined") {
 
 
 
-// ✅ Use `createAsyncThunk`
+// // ✅ Use `createAsyncThunk`
+// export const loadUser = createAsyncThunk("auth/loadUser", async (_, thunkAPI) => {
+//     try {
+//         const { data } = await axios.get("/api/v1/me", { withCredentials: true });
+
+//         // ✅ Store user in localStorage for persistence
+//         localStorage.setItem("user", JSON.stringify(data.user));
+
+//         return data.user;
+//     } catch (error) {
+//       // Handle 401 Unauthorized separately
+//       if (error.response?.status === 401) {
+//           console.warn("🚫 User is not logged in (401 Unauthorized)");
+//           return thunkAPI.rejectWithValue(null); // Just return null instead of an error message
+//       }
+
+//       console.error("❌ LoadUser Error:", error.response?.data?.message);
+//       return thunkAPI.rejectWithValue(error.response?.data?.message || "Failed to load user");
+//   }
+// });
 export const loadUser = createAsyncThunk("auth/loadUser", async (_, thunkAPI) => {
-    try {
-        const { data } = await axios.get("/api/v1/me", { withCredentials: true });
+  try {
+      const { data } = await axios.get("/api/v1/me", { withCredentials: true });
 
-        // ✅ Store user in localStorage for persistence
-        localStorage.setItem("user", JSON.stringify(data.user));
+      // Log the successful response for debugging
+      console.log("User data loaded successfully:", data);
+      localStorage.setItem("user", JSON.stringify(data.user));
 
-        return data.user;
-    } catch (error) {
+      return data.user;
+  } catch (error) {
+      // Log the error response to understand what went wrong
+      console.error("LoadUser Error:", error.response);
+
       // Handle 401 Unauthorized separately
       if (error.response?.status === 401) {
           console.warn("🚫 User is not logged in (401 Unauthorized)");
-          return thunkAPI.rejectWithValue(null); // Just return null instead of an error message
+          return thunkAPI.rejectWithValue(null); // Returning null when 401
       }
 
-      console.error("❌ LoadUser Error:", error.response?.data?.message);
+      console.error("❌ Error loading user:", error.response?.data?.message);
       return thunkAPI.rejectWithValue(error.response?.data?.message || "Failed to load user");
   }
 });
+
 
 // Initial state
 const initialState = {
